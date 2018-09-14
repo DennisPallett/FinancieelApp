@@ -1,8 +1,0 @@
-**/.vs/*
-
-vendor/*
-import-tool/import/*
-import-tool/rules/*
-import-tool/config.ini
-
-lib/importer/rules/*

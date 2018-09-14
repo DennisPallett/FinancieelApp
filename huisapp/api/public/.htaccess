@@ -1,8 +1,0 @@
-RewriteEngine on
-RewriteCond %{REQUEST_FILENAME} !-d
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule . index.php [L]
-
-Header set Access-Control-Allow-Origin "*"
-Header set Access-Control-Allow-Methods "GET, POST, PUT, OPTIONS, HEAD, DELETE"
-Header set Access-Control-Allow-Headers "Origin, X-Requested-With, Content-Type, Accept, Engaged-Auth-Token"

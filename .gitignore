@@ -1,6 +1,8 @@
 **/.vs/*
 
-klimalog/vendor/*
-klimalog/import/*
-klimalog/config.ini
-financieel/api/public/config.path
+vendor/*
+import-tool/import/*
+import-tool/rules/*
+import-tool/config.ini
+
+lib/importer/rules/*
