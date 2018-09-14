@@ -1,2 +1,2 @@
-# DennisPallett
-This repository contains all my personal projects and code
+# FinancieelApp
+This repository a simple finance app.
