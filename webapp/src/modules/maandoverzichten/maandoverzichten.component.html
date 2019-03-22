@@ -24,14 +24,18 @@
         <td>&euro;&nbsp;{{brandstofTotaal | FormatAmount}}</td>
       </tr>
       <tr>
-        <th>Totale inkomen:</th>
-        <td> &euro;&nbsp;{{totaleInkomen | FormatAmount}}</td>
+        <th>Totaal sparen:</th>
+        <td>&euro;&nbsp;{{totaalSparen | FormatAmount}}</td>
 
         <th>Totaal boodschappen:</th>
         <td>&euro;&nbsp;{{boodschappenTotaal | FormatAmount}}</td>
 
         <th>Totaal overige uitgaven:</th>
         <td>&euro;&nbsp;{{overigeUitgavenTotaal | FormatAmount}}</td>
+      </tr>
+      <tr>
+        <th>Totale inkomen:</th>
+        <td> &euro;&nbsp;{{totaleInkomen | FormatAmount}}</td>
       </tr>
     </table>
  
@@ -100,23 +104,43 @@
         </tr>
       </table>
     </div>
+
+    <div *ngIf="sparen.length > 0">
+      <hr />
+      <h3>Sparen</h3>
+      <table>
+        <tr *ngFor="let transactie of sparen">
+          <th>
+            <img src="./assets/images/pin.jpg" class="pin" width="25" *ngIf="transactie.is_shop_sale" />
+            {{transactie | CreateTransactieDescription}}
+          </th>
+          <td>&euro;&nbsp;{{transactie.amount | FormatAmount}}</td>
+        </tr>
+        <tr class="totaal">
+          <th>Totaal:</th>
+          <td>&euro;&nbsp;{{totaalSparen | FormatAmount}}</td>
+        </tr>
+      </table>
+    </div>
   </div>
 
   <div style="float: left; width: 33%; border-left: 1px solid #EFEFEF; padding-left: 5px; margin-left: 5px;">
     <h3>Overige uitgaven</h3>
     <table>
-      <tr *ngFor="let transactie of overigeUitgaven">
-        <th>
-          <img src="./assets/images/pin.jpg" class="pin" width="25" *ngIf="transactie.is_shop_sale" />
-          {{transactie | CreateTransactieDescription}}
-        </th>
-        <td>&euro;&nbsp;{{transactie.amount | FormatAmount}}</td>
-      </tr>
+      <ng-container *ngFor="let category of overigeUitgaven | keyvalue">
+        <tr><td colspan="2"><h5>{{category.key}}</h5></td></tr>
+        <tr *ngFor="let transactie of category.value">
+          <th>
+            <img src="./assets/images/pin.jpg" class="pin" width="25" *ngIf="transactie.is_shop_sale" />
+            {{transactie | CreateTransactieDescription}}
+          </th>
+          <td>&euro;&nbsp;{{transactie.amount | FormatAmount}}</td>
+        </tr>
+      </ng-container>
       <tr class="totaal">
         <th>Totaal:</th>
         <td>&euro;&nbsp;{{overigeUitgavenTotaal | FormatAmount}}</td>
       </tr>
     </table>
   </div>
-
 </div>

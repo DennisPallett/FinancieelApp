@@ -30,16 +30,21 @@ abstract class TransactionsDataLayer implements \datalayer\ITransactionsDataLaye
 		$bindParams = array();
 
 		$sql = "SELECT 
-		entry.*, COALESCE(category.name, entry.category) AS category_name 
-		FROM entry LEFT JOIN category ON entry.category = category.key WHERE 1=1";
+		entry.*, 
+		COALESCE(category.name, entry.category) AS category_name,
+		categorygroup.key AS category_group_key
+		FROM entry 
+		LEFT JOIN category ON entry.category = category.key 
+		LEFT JOIN categorygroup ON category.group = categorygroup.key
+		WHERE 1=1";
 
 		if (!empty($month) && is_numeric($month)) {
-			$sql .= " AND date_part('month', value_date) = :month";
+			$sql .= " AND EXTRACT(MONTH FROM value_date) = :month";
 			$bindParams[':month'] = $month;
 		}
 
 		if (!empty($year) && is_numeric($year)) {
-			$sql .= " AND date_part('year', value_date) = :year";
+			$sql .= " AND EXTRACT(YEAR FROM value_date) = :year";
 			$bindParams[':year'] = $year;
 		}
 

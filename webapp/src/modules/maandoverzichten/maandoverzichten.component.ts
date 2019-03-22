@@ -28,9 +28,11 @@ export class MaandOverzichtenComponent implements OnInit {
 
   brandstof: ITransactie[] = [];
 
+  sparen: ITransactie[] = [];
+
   brandstofTotaal: number = 0;
 
-  overigeUitgaven: ITransactie[] = [];
+  overigeUitgaven: [] = [];
 
   overigeUitgavenTotaal: number = 0;
 
@@ -41,6 +43,8 @@ export class MaandOverzichtenComponent implements OnInit {
   totaleUitgaven: number = 0;
 
   totaleInkomen: number = 0;
+
+  totaalSparen: number = 0;
 
   constructor(private transactiesService: TransactiesService, private datesService: DatesService) {
   }
@@ -62,15 +66,26 @@ export class MaandOverzichtenComponent implements OnInit {
   private loadTransacties() {
     this.transactiesService.getTransactiesForMonth(this.currentMonth, this.currentYear).subscribe(
       (transacties) => {
-        this.totaleUitgaven = 0;
-        this.totaleInkomen = 0;
+        this.totaleUitgaven = transacties
+                              .filter(t => t.amount < 0 && t.category_group_key != 'sparen')
+                              .map(t => +t.amount)
+                              .reduce((totaal, value) => totaal += value);
+
+        this.totaleInkomen = transacties
+                            .filter(t => t.amount >= 0)
+                            .map(t => +t.amount)
+                            .reduce((totaal, value) => totaal += value);
+
+        this.totaalSparen = transacties
+                            .filter(t => t.category_group_key == 'sparen')
+                            .map(t => +t.amount).reduce((totaal, value) => totaal += value);
 
         this.processVasteLasten(transacties);
         this.processOverigeUitgaven(transacties);
         this.processBoodschappen(transacties);
         this.processBrandstof(transacties);
         this.processInkomen(transacties);
-        //console.log(transacties);
+        this.processSparen(transacties);
       },
       (error) => {
         console.log(error);
@@ -86,8 +101,6 @@ export class MaandOverzichtenComponent implements OnInit {
     this.vasteLasten.forEach((transactie) => {
       this.vasteLastenTotaal = +this.vasteLastenTotaal + +transactie.amount;
     });
-
-    this.totaleUitgaven += +this.vasteLastenTotaal;
   }
 
   private processBoodschappen(transacties: ITransactie[]) {
@@ -99,8 +112,6 @@ export class MaandOverzichtenComponent implements OnInit {
     this.boodschappen.forEach((transactie) => {
       this.boodschappenTotaal = +this.boodschappenTotaal + +transactie.amount;
     });
-
-    this.totaleUitgaven += +this.boodschappenTotaal;
   }
 
   private processBrandstof(transacties: ITransactie[]) {
@@ -112,21 +123,34 @@ export class MaandOverzichtenComponent implements OnInit {
     this.brandstof.forEach((transactie) => {
       this.brandstofTotaal = +this.brandstofTotaal + +transactie.amount;
     });
+  }
 
-    this.totaleUitgaven += +this.brandstofTotaal;
+  private processSparen(transacties: ITransactie[]) {
+    this.sparen = transacties.filter(function (transactie) {
+      return (transactie.category != null && transactie.category == 'sparen');
+    });
   }
 
   private processOverigeUitgaven(transacties: ITransactie[]) {
-    this.overigeUitgaven = transacties.filter(function (transactie) {
-      return (transactie.category == null && transactie.amount < 0);
-    });
+    var categoriesToSkip = ['brandstof', 'boodschappen', 'vaste_lasten', 'sparen'];
 
-    this.overigeUitgavenTotaal = 0;
-    this.overigeUitgaven.forEach((transactie) => {
+    this.overigeUitgaven = [];
+
+    transacties.forEach((transactie => {
+      // specifieke transacties skippen
+      if (transactie.amount >= 0) return;
+      if (categoriesToSkip.indexOf(transactie.category) > -1) return;
+      if (categoriesToSkip.indexOf(transactie.category_group_key) > -1) return;
+
+      let category = transactie.category_name != null ? transactie.category_name : 'Onbekend';
+      if (!(category in this.overigeUitgaven)) this.overigeUitgaven[category] = [];
+
+      this.overigeUitgaven[category].push(transactie);
+
       this.overigeUitgavenTotaal = +this.overigeUitgavenTotaal + +transactie.amount;
-    });
+    }));
 
-    this.totaleUitgaven += +this.overigeUitgavenTotaal;
+    console.log(this.overigeUitgaven);
   }
 
   private processInkomen(transacties: ITransactie[]) {
@@ -138,8 +162,6 @@ export class MaandOverzichtenComponent implements OnInit {
     this.inkomen.forEach((transactie) => {
       this.inkomenTotaal = +this.inkomenTotaal + +transactie.amount;
     });
-
-    this.totaleInkomen += +this.inkomenTotaal;
   }
 
 }

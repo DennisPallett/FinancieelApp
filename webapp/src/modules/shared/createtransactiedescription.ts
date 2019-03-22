@@ -20,7 +20,7 @@ export class CreateTransactieDescriptionPipe {
         return value.description;
     }
 
-    if (value.description.length > 0)
+    if (value.description.length > 0 && !value.description.startsWith("/TRTP/"))
       return value.description;
 
     return value.other_party_name;
